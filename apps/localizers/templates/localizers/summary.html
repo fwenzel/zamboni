@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <link rel="stylesheet" media="screen,projection,tv" href="{{ MEDIA_URL }}css/developers.css"/>
+  <link rel="stylesheet" media="screen,projection,tv" href="{{ MEDIA_URL }}css/localizers.css"/>
+{% endblock %}
+
+{% block title %}{{ page_title(_('Localizer Dashboard')) }}{% endblock %}
+
+{% block bodyclass %}inverse l10n-dashboard{% endblock %}
+
+{% block main_content %}
+<h2>{{ _('Mozilla Add-ons Localization') }}</h2>
+
+<div id="localizers" class="primary feed-page" role="main">
+  <div class="featured" id="l10n_levels">
+    <div class="featured-inner">
+      <div class="listing-header">
+        <h3>{{ _('Overall Completeness for all Locales') }}</h3>
+      </div>
+      {% for level in stats.iterkeys(): %}
+        <div class="featured-inner level {{ level }}">
+          <span class="level_desc">{{ level_desc(level) }}</span>
+          <ul>
+            {% for locale in stats[level] %}
+              {% with hidden_options = ' class="disabled" title="'+_('This locale is hidden.')+'"' %}
+              <li><a href="{{ url('l10n.locale_dashboard', locale) }}"
+                    {{ hidden_options if locale in hidden_langs }}>
+                    {{ languages[locale]['native'] }}</a>
+              </li>
+              {% endwith %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="featured">
+    <div class="featured-inner">
+      <div class="listing-header">
+        <h3>{{ _('Recent Activity for all Locales') }}</h3>
+      </div>
+      {% if not activity %}
+        <p class="addon-search-message">{{ _('No results found.') }}</p>
+      {% else %}
+        <div class="addon-feed-wrapper">
+          <ul id="addon-feed" class="addon-events">
+            {% for event in activity.object_list %}
+              <li class="addon-event {{ event['class'] }}">
+                <span class="icon"></span>
+                <p>{{ event.notes }}</p>
+                {# TODO human readable date, e.g., "2 hours ago" #}
+                <p class="date">{{ event.created|datetime(_('%B %e, %Y, %I:%M %p')) }}</p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+    {% if activity %}
+      <div class="listing-footer">
+        {{ activity|paginator }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{#
+<div class="secondary sidebar" role="complementary">
+    <?=$this->renderElement('amo2009/localizers/summary_sidebar')?>
+  </div>
+#}
+{% endblock %}
+
+{% macro level_desc(level) -%}
+{% if level == 'high' %}
+  {{ _('<span class="level_hat">Above</span>95%')|safe }}
+{% elif level == 'medium' %}
+  {{ _('<span class="level_hat">Above</span>70%')|safe }}
+{% elif level == 'low' %}
+  {{ _('<span class="level_hat">Below</span>70%')|safe }}
+{% endif %}
+{%- endmacro %}

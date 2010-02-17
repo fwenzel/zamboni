@@ -63,6 +63,7 @@ AMO_LANGUAGES = (
     'mn', 'nl', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru', 'sk', 'sq',
     'sv-SE', 'uk', 'vi', 'zh-CN', 'zh-TW',
 )
+HIDDEN_LANGUAGES = ('cy', 'sr', 'sr-Latn', 'tr')
 
 # Override Django's built-in with our native names
 LANGUAGES = dict([(i.lower(), product_details.languages[i]['native'])
@@ -201,6 +202,7 @@ INSTALLED_APPS = (
     'discovery',
     'editors',
     'files',
+    'localizers',
     'minify',
     'nick',
     'pages',

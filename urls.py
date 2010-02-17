@@ -20,6 +20,9 @@ urlpatterns = patterns('',
     # Browse pages.
     ('', include('browse.urls')),
 
+    # Localizer Pages
+    ('', include('localizers.urls')),
+
     # Users
     ('', include('users.urls')),
 
