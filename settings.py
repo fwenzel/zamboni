@@ -288,6 +288,11 @@ MINIFY_BUNDLES = {
         'zamboni/discovery-pane': (
             'css/zamboni/discovery-pane.css',
         ),
+        # CSS for developer/editor/localizer pages
+        'developers': (
+            'css/developers.css',
+            'css/localizers.css',
+        ),
     },
     'js': {
         # JS files common to the entire site.
@@ -317,6 +322,10 @@ MINIFY_BUNDLES = {
             # Personas
             'js/zamboni/jquery.hoverIntent.min.js',
             'js/zamboni/personas.js',
+        ),
+        # JS for developer/editor/localizer pages
+        'developers': (
+            '/js/zamboni/localizers.js',
         ),
     }
 }

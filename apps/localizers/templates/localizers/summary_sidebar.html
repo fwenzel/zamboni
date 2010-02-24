@@ -1,0 +1,21 @@
+{# TODO restrict this to admins with user edit rights only #}
+{% if motd or request.user.is_staff %}
+  <div id="l10n-motd" class="article prose">
+    {# L10n: Header to an info box in the sidebar #}
+    <h3>{{ _('Good to know') }}</h3>
+    {{ l10n_sidebar_motd(lang='', show_edit=request.user.is_staff) }}
+  </div>
+{% endif %}
+
+<div class="article prose">
+  <h3>{{ _('Want to help?') }}</h3>
+  <p>{{ _('AMO is available in so many languages because of people like '
+          'you helping out!') }}</p>
+  <ul>
+    <li><a href="https://wiki.mozilla.org/AMO:Localizers">{{
+      _('Get started with AMO L10n') }}</a></li>
+    {# L10n: %1$s is a URL #}
+    <li>{{ _('Want the bigger picture? Visit <a href="{0}">'
+             'localize.mozilla.org</a>.')|f('http://localize.mozilla.org')|safe }}</li>
+  </ul>
+</div>

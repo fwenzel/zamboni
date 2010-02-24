@@ -16,7 +16,7 @@ class L10nEventlog(amo.models.ModelBase):
     removed = models.CharField(max_length=255, default='', null=True)
     notes = models.TextField()
 
-    modified = None # no "modified field"
+    modified = None # no "modified" field
 
     class Meta:
         db_table = 'l10n_eventlog'

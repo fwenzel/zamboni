@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
-  <link rel="stylesheet" media="screen,projection,tv" href="{{ MEDIA_URL }}css/developers.css"/>
-  <link rel="stylesheet" media="screen,projection,tv" href="{{ MEDIA_URL }}css/localizers.css"/>
+  {{ css('developers') }}
+{% endblock %}
+
+{% block js %}
+  {{ js('developers') }}
 {% endblock %}
 
 {% block title %}{{ page_title(_('Localizer Dashboard')) }}{% endblock %}
@@ -65,11 +68,11 @@
     {% endif %}
   </div>
 </div>
-{#
+
 <div class="secondary sidebar" role="complementary">
-    <?=$this->renderElement('amo2009/localizers/summary_sidebar')?>
-  </div>
-#}
+  {{ l10n_summary_sidebar() }}
+</div>
+
 {% endblock %}
 
 {% macro level_desc(level) -%}

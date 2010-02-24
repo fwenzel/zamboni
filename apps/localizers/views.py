@@ -1,5 +1,6 @@
 from django import http
 from django.conf import settings
+from django.db.models import Min
 
 import jingo
 import product_details
@@ -45,21 +46,11 @@ def dashboard(request):
     }
 
     # recent activity
-    from django.db.models import Min
     q = L10nEventlog.objects.exclude(type='stats').values(
         'type', 'action', 'changed_id').distinct().order_by('-created').values(
         'type', 'action', 'changed_id', 'notes', 'created')
     activity = amo.utils.paginate(request, q, 5)
-    print activity.object_list
     data['activity'] = activity
-
-    # message of the day
-    # TODO purified fields
-    try:
-        l10n_settings = L10nSettings.objects.get(locale='')
-        data['l10n_settings'] = l10n_settings
-    except L10nSettings.DoesNotExist:
-        pass
 
     return jingo.render(request, 'localizers/summary.html', data)
 
