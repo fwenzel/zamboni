@@ -1,10 +1,15 @@
+import json
+
 from django import http
 from django.conf import settings
 from django.db.models import Min
+from django.utils import translation
 
 import jingo
+from l10n import ugettext as _
 import product_details
 
+from access import acl
 import amo.utils
 
 from . import L10N_CATEGORIES
@@ -53,6 +58,54 @@ def dashboard(request):
     data['activity'] = activity
 
     return jingo.render(request, 'localizers/summary.html', data)
+
+
+def set_motd(request):
+    """AJAX: Set announcements for either global or per-locale dashboards."""
+    lang = request.POST.get('lang', None)
+    msg = request.POST.get('msg', None)
+
+    if (lang != '' and lang not in settings.AMO_LANGUAGES and
+        lang not in settings.HIDDEN_LANGUAGES or
+        msg is None):
+        return _json_error(_('An error occurred saving this message.'))
+
+    if (not acl.action_allowed(request, 'Admin', 'EditAnyLocale') and
+        not acl.action_allowed(request, 'Localizers', lang)):
+        return _json_error(_('Access Denied'))
+
+    try:
+        l10n_set = L10nSettings.objects.get(locale=lang)
+    except L10nSettings.DoesNotExist:
+        l10n_set = L10nSettings.objects.create(locale=lang)
+        l10n_set.save()
+
+    # MOTDs are monolingual, so always store them in the default fallback
+    # locale (probably en-US)
+    l10n_set.motd = {settings.LANGUAGE_CODE: msg}
+    l10n_set.save(force_update=True)
+
+    data = {
+        'msg': l10n_set.motd.localized_string,
+        'msg_purified': unicode(l10n_set.motd)
+    }
+
+    return _json_response(data)
+
+
+def _json_response(content):
+    """Send an HttpResponse with json content."""
+    # XXX should this be part of jingo?
+    return http.HttpResponse(
+        json.dumps(content), mimetype='application/json')
+
+
+def _json_error(msg):
+    """Send a JSON-encoded error message."""
+    return _json_response({
+        'error': True,
+        'error_message': msg,
+    })
 
 
 def locale_dashboard(request, locale_code):

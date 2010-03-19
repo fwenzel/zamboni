@@ -1,7 +1,7 @@
 from django.db import models
 
 import amo.models
-from translations.fields import TranslatedField
+from translations.fields import PurifiedField
 
 
 class L10nEventlog(amo.models.ModelBase):
@@ -25,7 +25,7 @@ class L10nEventlog(amo.models.ModelBase):
 class L10nSettings(amo.models.ModelBase):
     """Per-locale L10n Dashboard settings"""
     locale = models.CharField(max_length=30, default='', unique=True)
-    motd = TranslatedField()
+    motd = PurifiedField()
     team_homepage = models.CharField(max_length=255, default='', null=True)
 
     class Meta:

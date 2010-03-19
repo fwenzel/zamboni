@@ -8,13 +8,8 @@ from .models import L10nSettings
 @jinja2.contextfunction
 def l10n_summary_sidebar(context):
     """Sidebar on the global localizer summary page."""
-    ctx = {
-        'user': context['user'],
-        'request': context['request'],
-        'LANG': context['LANG']
-    }
     t = env.get_template('localizers/summary_sidebar.html')
-    return jinja2.Markup(t.render(**ctx))
+    return jinja2.Markup(t.render(**context))
 
 
 @register.function
@@ -27,12 +22,6 @@ def l10n_sidebar_motd(context, lang='', show_edit=False):
     except L10nSettings.DoesNotExist:
         motd = None
 
-    ctx = {
-        'request': context['request'],
-        'LANG': context['LANG'],
-        'show_edit': show_edit,
-        'motd_lang': lang,
-        'motd': motd
-    }
     t = env.get_template('localizers/sidebar_motd.html')
-    return jinja2.Markup(t.render(**ctx))
+    return jinja2.Markup(t.render(show_edit=show_edit, motd_lang=lang,
+                                  motd=motd, **context))
