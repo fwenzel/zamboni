@@ -18,5 +18,5 @@ urlpatterns = patterns('',
     ('^localizers/(?P<locale_code>[\w-]+)/', include(detail_patterns)),
 
     url('^localizers/set_motd$', views.set_motd, name='l10n.set_motd'),
-    url('^localizers/$', views.dashboard, name='l10n.dashboard'),
+    url('^localizers/$', views.summary, name='l10n.dashboard'),
 )

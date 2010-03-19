@@ -1,10 +1,12 @@
 from django.db import models
 
+import caching.base
+
 import amo.models
 from translations.fields import PurifiedField
 
 
-class L10nEventlog(amo.models.ModelBase):
+class L10nEventlog(caching.base.CachingMixin, models.Model):
     locale = models.CharField(max_length=30, default='')
     type = models.CharField(max_length=20, default='')
     action = models.CharField(max_length=40, default='')
@@ -16,10 +18,13 @@ class L10nEventlog(amo.models.ModelBase):
     removed = models.CharField(max_length=255, default='', null=True)
     notes = models.TextField()
 
-    modified = None # no "modified" field
+    created = models.DateTimeField(auto_now_add=True)
+
+    objects = amo.models.ManagerBase()
 
     class Meta:
         db_table = 'l10n_eventlog'
+        get_latest_by = 'created'
 
 
 class L10nSettings(amo.models.ModelBase):

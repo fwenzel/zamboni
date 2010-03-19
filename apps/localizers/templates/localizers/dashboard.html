@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ css('developers') }}
+{% endblock %}
+
+{% block js %}
+  {{ js('developers') }}
+{% endblock %}
+
+{% block title %}
+{# L10n: %s is a locale name or code ('German' or 'de') #}
+{{ page_title(_('Localization Summary for {0}')|f(userlang['native'])) }}
+{% endblock %}
+
+{% block bodyclass %}inverse l10n-dashboard{% endblock %}
+
+{% block main_content %}
+<h2>{{ _('Localization Summary for {0}')|f(userlang.native) }}</h2>
+
+<div id="localizers" class="primary feed-page" role="main">
+  <div class="featured">
+    <div class="featured-inner">
+      <div class="listing-header">
+        {# L10n: {0} is a language name, e.g. 'Deutsch' #}
+        <h3>{{ _('Recent Activity for {0}')|f(userlang['native']) }}</h3>
+      </div>
+      {% if not activity %}
+        <p class="addon-search-message">{{ _('No results found.') }}</p>
+      {% else %}
+        <div class="addon-feed-wrapper">
+          <ul id="addon-feed" class="addon-events">
+            {% for event in activity.object_list %}
+              <li class="addon-event {{ event['class'] }}">
+                <span class="icon"></span>
+                <p>{{ event.notes }}</p>
+                {# TODO human readable date, e.g., "2 hours ago" #}
+                <p class="date">{{ event.created|datetime(_('%B %e, %Y, %I:%M %p')) }}</p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+    {% if activity %}
+      <div class="listing-footer">
+        {{ activity|paginator }}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if members or team_homepage %}
+  <div class="article prose intouch">
+    {# L10n: {0} is a language name, e.g. 'Deutsch' #}
+    <h3>{{ _('Want to get in touch with the {0} L10n team?')|f(
+      userlang['native']) }}</h3>
+    {% if team_homepage %}
+      <p><a href="{{ team_homepage|external_url }}" hreflang="{{ locale_code }}">
+        {# L10n: {0} is a language name, e.g. 'Deutsch' #}
+        {{ _('Visit the {0} L10n Homepage')|f(userlang['native']) }}
+      </a></p>
+    {% endif %}
+    {% if members %}
+      {# L10n: {0} is a language name, e.g. 'Deutsch' #}
+      <h4>{{ _('Current Localizers for {0}:')|f(userlang['native']) }}</h4>
+      <ul>
+        {% for member in members %}
+        <li>{{ member|user_link }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>{# /#localizers #}
+
+{% endblock %}

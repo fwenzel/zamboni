@@ -26,9 +26,9 @@
           <span class="level_desc">{{ level_desc(level) }}</span>
           <ul>
             {% for locale in stats[level] %}
-              {% with hidden_options = ' class="disabled" title="'+_('This locale is hidden.')+'"' %}
+            {% with hidden_options = ' class="disabled" title="{0}"'|f(_('This locale is hidden.')) %}
               <li><a href="{{ url('l10n.locale_dashboard', locale) }}"
-                    {{ hidden_options if locale in hidden_langs }}>
+                    {{ hidden_options|safe if locale in hidden_langs }}>
                     {{ languages[locale]['native'] }}</a>
               </li>
               {% endwith %}

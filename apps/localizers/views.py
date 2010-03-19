@@ -10,13 +10,14 @@ from l10n import ugettext as _
 import product_details
 
 from access import acl
+from access.models import Group
 import amo.utils
 
 from . import L10N_CATEGORIES
 from .models import L10nEventlog, L10nSettings
 
 
-def dashboard(request):
+def summary(request):
     """global L10n dashboard"""
 
     # compile locale stats
@@ -110,8 +111,37 @@ def _json_error(msg):
 
 def locale_dashboard(request, locale_code):
     """per-locale dashboard"""
-    return http.HttpResponse(
-        'this is the l10n dashboard for %s' % locale_code)
+    if locale_code not in (settings.AMO_LANGUAGES + settings.HIDDEN_LANGUAGES):
+        raise http.Http404
+
+    data = {
+        'userlang': product_details.languages[locale_code],
+    }
+
+    # recent activity
+    q = L10nEventlog.objects.exclude(type='stats').filter(
+        locale=locale_code).order_by('-created')
+    activity = amo.utils.paginate(request, q, 8)
+    data['activity'] = activity
+
+    # group members
+    try:
+        group = Group.objects.get(
+            rules__startswith=('Localizers:%s' % locale_code))
+        members = group.users.all()
+    except Group.DoesNotExist:
+        members = None
+    data['members'] = members
+
+    # team homepage
+    try:
+        l10n_set = L10nSettings.objects.get(locale=locale_code)
+        team_homepage = l10n_set.team_homepage
+    except L10nSettings.DoesNotExist:
+        team_homepage = None
+    data['team_homepage'] = team_homepage
+
+    return jingo.render(request, 'localizers/dashboard.html', data)
 
 
 def gettext(request, locale_code):
