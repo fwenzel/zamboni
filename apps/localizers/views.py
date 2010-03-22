@@ -12,6 +12,7 @@ import product_details
 from access import acl
 from access.models import Group
 import amo.utils
+from amo.urlresolvers import reverse
 
 from . import L10N_CATEGORIES
 from .models import L10nEventlog, L10nSettings
@@ -109,6 +110,21 @@ def _json_error(msg):
     })
 
 
+def locale_switcher(f):
+    """Decorator redirecting clicks on the locale switcher dropdown."""
+    def decorated(request, *args, **kwargs):
+        new_userlang = request.GET.get('userlang')
+        if (new_userlang and new_userlang in settings.LANGUAGES or
+            new_userlang in settings.HIDDEN_LANGUAGES):
+            kwargs['locale_code'] = new_userlang
+            return http.HttpResponsePermanentRedirect(reverse(
+                decorated, args=args, kwargs=kwargs))
+        else:
+            return f(request, *args, **kwargs)
+    return decorated
+
+
+@locale_switcher
 def locale_dashboard(request, locale_code):
     """per-locale dashboard"""
     if locale_code not in (settings.AMO_LANGUAGES + settings.HIDDEN_LANGUAGES):

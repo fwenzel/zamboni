@@ -16,6 +16,8 @@
 {% block bodyclass %}inverse l10n-dashboard{% endblock %}
 
 {% block main_content %}
+{{ locale_switcher(current_locale=locale_code) }}
+
 <h2>{{ _('Localization Summary for {0}')|f(userlang.native) }}</h2>
 
 <div id="localizers" class="primary feed-page" role="main">

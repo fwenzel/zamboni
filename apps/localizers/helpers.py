@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.utils import translation
 
 import jinja2
 from jingo import register, env
+import product_details
 
 from access import acl
 from . import L10N_CATEGORIES
@@ -80,4 +82,16 @@ def localizers_sidebar_motd(context, lang='', show_edit=False, extraclass=None):
     }
 
     t = env.get_template('localizers/sidebar_motd.html')
+    return jinja2.Markup(t.render(**ctx))
+
+
+@register.function
+def locale_switcher(current_locale=None):
+    """Locale dropdown to switch user locale on localizer pages."""
+    ctx = {
+        'current_locale': current_locale,
+        'locales': settings.AMO_LANGUAGES + settings.HIDDEN_LANGUAGES,
+        'languages': product_details.languages,
+    }
+    t = env.get_template('localizers/locale_switcher.html')
     return jinja2.Markup(t.render(**ctx))
