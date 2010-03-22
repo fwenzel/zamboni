@@ -19,6 +19,9 @@
 <h2>{{ _('Localization Summary for {0}')|f(userlang.native) }}</h2>
 
 <div id="localizers" class="primary feed-page" role="main">
+  {{ breadcrumbs([(url('localizers.dashboard'),
+                   _('Localization Dashboard'))]) }}
+
   <div class="featured">
     <div class="featured-inner">
       <div class="listing-header">
@@ -73,5 +76,9 @@
   {% endif %}
 
 </div>{# /#localizers #}
+
+<div class="secondary sidebar" role="complementary">
+  {{ localizers_dashboard_sidebar(locale_code=locale_code) }}
+</div>
 
 {% endblock %}

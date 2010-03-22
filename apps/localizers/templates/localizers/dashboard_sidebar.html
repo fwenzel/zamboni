@@ -1,0 +1,67 @@
+<div id="l10n-motd" class="article prose">
+  {# L10n: Header to an info box in the sidebar #}
+  <h3>{{ _('Good to know') }}</h3>
+  {{ localizers_sidebar_motd(lang=locale_code, show_edit=show_local_edit) }}
+  {{ localizers_sidebar_motd(lang='', show_edit=show_global_edit,
+                             extraclass='additional') }}
+</div>
+
+<div class="l10n_stats article">
+  <h3>{{ _('Progress Summary') }}</h3>
+  <ul>
+    {% for stats in lang_stats %}
+    <li>
+      <a href="{{ url('localizers.{0}'|f(stats['category']),
+                      locale_code=locale_code) }}">
+        {{ stats['name'] }}
+      </a>
+      <div class="barometer" title="{{
+        _('{0} percent translated')|f(stats['percentage']|wround) }}">
+        <div class="bars">
+          <div class="upbar" style="width:{{ stats['upwidth'] }}%">&nbsp;</div>
+          <div class="downbar" style="width:{{ stats['downwidth'] }}%">&nbsp;</div>
+        </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% if show_local_edit or show_global_edit %}
+<div class="l10n_needhelp article prose">
+  <h3>{{ _('Need Help?') }}</h3>
+  <p>
+    <a href="http://www.mozilla.org/community/developer-forums.html#dev-l10n-web">
+      {{ _('Visit the Newsgroup') }}
+    </a>
+  </p>
+
+  {% if members %}
+    <h4>{{ _('E-Mail Your Team:') }}</h4>
+    <ul>
+      {% for member in members %}
+        <li><a href="mailto:{{ member.email }}">{{ member.display_name }}</a>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if show_global_edit %}
+{# TODO uncakeify #}
+<div class="article">
+  <form method="post" action="{{
+    remora_url('/localizers/xenophobia', app='') }}">
+    {{ cake_csrf_token() }}
+    <input name="locale" type="hidden" value="{{ locale_code }}"/>
+    <input id="xenophobia" type="checkbox" name="xenophobia"{{
+      ' checked' if xenophobia }}/>
+    <label for="xenophobia">
+      {% trans %}
+      By default, show only add-ons with translations for this locale. This
+      affects all searches, listings, and browse pages for all users.
+      {% endtrans %}
+    </label>
+    <button type="submit">{{ _('Save') }}</button>
+  </form>
+</div>
+{% endif %}

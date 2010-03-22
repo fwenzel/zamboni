@@ -1,7 +1,7 @@
-<div class="motd">
+<div class="motd{{ ' '+extraclass if extraclass else '' }}">
   {% if show_edit %}
     <div class="edit_motd" style="display:none;">
-      <form action="{{ url('l10n.set_motd') }}" method="post">
+      <form action="{{ url('localizers.set_motd') }}" method="post">
         {{ csrf() }}
         <input type="hidden" name="lang" value="{{ motd_lang }}"/>
         <textarea name="msg">{{ motd and motd.localized_string }}</textarea>

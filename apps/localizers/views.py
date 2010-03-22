@@ -29,7 +29,7 @@ def summary(request):
             continue
 
         lang_stats = []
-        for category in iter(L10N_CATEGORIES):
+        for category, _ in L10N_CATEGORIES:
             stats_event = L10nEventlog.objects.filter(
                 type='stats', action=category, locale=lang).order_by(
                 '-created').only('notes')[:1]
@@ -115,6 +115,7 @@ def locale_dashboard(request, locale_code):
         raise http.Http404
 
     data = {
+        'locale_code': locale_code,
         'userlang': product_details.languages[locale_code],
     }
 
@@ -157,8 +158,3 @@ def categories(request, locale_code):
 def collection_features(request, locale_code):
     return http.HttpResponse(
         'this is the collection feat. dashboard for %s' % locale_code)
-
-
-def pages(request, locale_code):
-    return http.HttpResponse(
-        'this is the pages dashboard for %s' % locale_code)

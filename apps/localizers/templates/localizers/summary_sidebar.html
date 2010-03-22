@@ -1,11 +1,8 @@
-{# TODO restrict this to admins with user edit rights only #}
-{% if motd or request.user.is_staff %}
-  <div id="l10n-motd" class="article prose">
-    {# L10n: Header to an info box in the sidebar #}
-    <h3>{{ _('Good to know') }}</h3>
-    {{ l10n_sidebar_motd(lang='', show_edit=request.user.is_staff) }}
-  </div>
-{% endif %}
+<div id="l10n-motd" class="article prose">
+  {# L10n: Header to an info box in the sidebar #}
+  <h3>{{ _('Good to know') }}</h3>
+  {{ localizers_sidebar_motd(lang='', show_edit=show_edit) }}
+</div>
 
 <div class="article prose">
   <h3>{{ _('Want to help?') }}</h3>

@@ -27,7 +27,7 @@
           <ul>
             {% for locale in stats[level] %}
             {% with hidden_options = ' class="disabled" title="{0}"'|f(_('This locale is hidden.')) %}
-              <li><a href="{{ url('l10n.locale_dashboard', locale) }}"
+              <li><a href="{{ url('localizers.locale_dashboard', locale) }}"
                     {{ hidden_options|safe if locale in hidden_langs }}>
                     {{ languages[locale]['native'] }}</a>
               </li>
@@ -70,7 +70,7 @@
 </div>
 
 <div class="secondary sidebar" role="complementary">
-  {{ l10n_summary_sidebar() }}
+  {{ localizers_summary_sidebar() }}
 </div>
 
 {% endblock %}
