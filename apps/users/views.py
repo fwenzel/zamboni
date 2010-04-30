@@ -18,6 +18,7 @@ import jingo
 import amo
 from bandwagon.models import Collection
 
+from .decorators import account_management_status
 from .models import UserProfile
 from .signals import logged_out
 from .users import forms
@@ -171,7 +172,7 @@ def _clean_next_url(request):
     if url and '://' in url:
         url = None
 
-    # TODO(davedash): This is a remora-ism, let's remove this after remora and
+    # TODO(davedash): This is a remora-ism, let's remove this after remora
     # since all zamboni 'to' parameters will begin with '/'.
     if url and not url.startswith('/'):
         url = '/' + url
@@ -181,6 +182,7 @@ def _clean_next_url(request):
     return request
 
 
+@account_management_status
 def login(request):
     logout(request)
 
@@ -233,13 +235,14 @@ def login(request):
         # Hitting POST directly because cleaned_data doesn't exist
         if 'username' in request.POST:
             log.debug(u"User (%s) failed to log in" %
-                                            request.POST['username'])
+                      request.POST['username'])
 
     return r
 
 
+@account_management_status
 def logout(request):
-    # Not using get_profile() becuase user could be anonymous
+    # Not using get_profile() because user could be anonymous
     user = request.user
     if not user.is_anonymous():
         log.debug(u"User (%s) logged out" % user)
@@ -322,3 +325,10 @@ def register(request):
     else:
         form = forms.UserRegisterForm()
     return jingo.render(request, 'users/register.html', {'form': form, })
+
+
+@account_management_status
+def session_status(request):
+    """Account Manager sessionstatus method"""
+    # An empty response will do: The magic is in the headers.
+    return http.HttpResponse()
