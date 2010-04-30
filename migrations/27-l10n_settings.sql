@@ -1,3 +1,15 @@
+CREATE TABLE `l10n_settings` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      `locale` varchar(30) NOT NULL,
+      `motd` int(11) DEFAULT NULL,
+      `team_homepage` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `locale` (`locale`),
+      UNIQUE KEY `motd` (`motd`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
+
 INSERT INTO l10n_settings (locale, team_homepage) VALUES
     ('ca', 'http://www.mozilla.cat/'),
     ('cs', 'http://www.mozilla.cz/'),
