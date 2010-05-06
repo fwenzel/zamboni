@@ -192,6 +192,7 @@ ROOT_URLCONF = '%s.urls' % ROOT_PACKAGE
 INSTALLED_APPS = (
     'amo',  # amo comes first so it always takes precedence.
     'access',
+    'account_manager',
     'addons',
     'api',
     'applications',

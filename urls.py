@@ -18,8 +18,9 @@ urlpatterns = patterns('',
     # Browse pages.
     ('', include('browse.urls')),
 
-    # Users
+    # Users and Account Manager
     ('', include('users.urls')),
+    ('', include('account_manager.urls')),
 
     # AMO admin (not django admin).
     ('^admin/', include('zadmin.urls')),

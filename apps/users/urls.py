@@ -2,7 +2,6 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls.defaults import patterns, url, include
 
 import jingo
-from jingo.views import direct_to_template
 
 from zadmin import jinja_for_django
 
@@ -49,14 +48,4 @@ urlpatterns = patterns('',
     # URLs for a single user.
     ('^user/(?P<user_id>\d+)/', include(detail_patterns)),
     ('^users/', include(users_patterns)),
-
-    # Account Manager
-    url('^.well-known/host-meta$', jingo.render, {
-        'template': 'account-manager/host-meta.xml',
-        'mimetype': 'text/xml'}, name='host-meta'),
-    url('^account-manager/amcd.json$', jingo.render, {
-        'template': 'account-manager/amcd.json',
-        'mimetype': 'application/json'}, name='am.amcd'),
-    url('^account-manager/sessionstatus$', views.session_status,
-        name='am.sessionstatus'),
 )

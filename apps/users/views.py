@@ -1,6 +1,7 @@
 import logging
 import random
 import string
+
 from django import http
 from django.conf import settings
 from django.core.mail import send_mail
@@ -11,14 +12,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.template import Context, loader
 
+import jingo
 from tower import ugettext as _
 
-import jingo
-
+from account_manager.decorators import account_management_status
 import amo
 from bandwagon.models import Collection
 
-from .decorators import account_management_status
 from .models import UserProfile
 from .signals import logged_out
 from .users import forms
@@ -325,10 +325,3 @@ def register(request):
     else:
         form = forms.UserRegisterForm()
     return jingo.render(request, 'users/register.html', {'form': form, })
-
-
-@account_management_status
-def session_status(request):
-    """Account Manager sessionstatus method"""
-    # An empty response will do: The magic is in the headers.
-    return http.HttpResponse()
