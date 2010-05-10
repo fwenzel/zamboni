@@ -6,28 +6,28 @@ from jingo import register, env
 import product_details
 
 from access import acl
+from zadmin.models import Config
+
 from . import L10N_CATEGORIES
 from .models import L10nSettings, L10nEventlog
 
 
-@register.function
+@register.inclusion_tag('localizers/summary_sidebar.html')
 @jinja2.contextfunction
 def localizers_summary_sidebar(context):
     """Sidebar on the global localizer summary page."""
-    request = context['request']
-    show_edit = acl.action_allowed(request, 'Admin', 'EditAnyLocale')
-    ctx = {
-        'request': request,
-        'show_edit': show_edit
-    }
-    t = env.get_template('localizers/summary_sidebar.html')
-    return jinja2.Markup(t.render(**ctx))
+    ctx = dict(context.items())
+    show_edit = acl.action_allowed(context['request'], 'Admin',
+                                   'EditAnyLocale')
+    ctx['show_edit'] = show_edit
+    return ctx
 
 
-@register.function
+@register.inclusion_tag('localizers/dashboard_sidebar.html')
 @jinja2.contextfunction
 def localizers_dashboard_sidebar(context, locale_code):
     """Sidebar on the per-locale localizer dashboard page."""
+    ctx = dict(context.items())
     request = context['request']
     show_global_edit = acl.action_allowed(request, 'Admin', 'EditAnyLocale')
     show_local_edit = (show_global_edit or
@@ -50,21 +50,21 @@ def localizers_dashboard_sidebar(context, locale_code):
                 'downwidth': downwidth
             })
 
-    ctx = {
+    # Xenophobia
+    conf = Config.objects.get(pk='xenophobia')
+    xenophobia = conf.json.get(locale_code, False)
+
+    ctx.update({
         'show_global_edit': show_global_edit,
         'show_local_edit': show_local_edit,
         'locale_code': locale_code,
         'lang_stats': lang_stats,
-        'members': context['members'],
-        'request': request,
-        'LANG': context['LANG'],
-    }
-
-    t = env.get_template('localizers/dashboard_sidebar.html')
-    return jinja2.Markup(t.render(**ctx))
+        'xenophobia': xenophobia,
+    })
+    return ctx
 
 
-@register.function
+@register.inclusion_tag('localizers/sidebar_motd.html')
 @jinja2.contextfunction
 def localizers_sidebar_motd(context, lang='', show_edit=False, extraclass=None):
     """Message of the Day on localizer dashboards."""
@@ -74,24 +74,21 @@ def localizers_sidebar_motd(context, lang='', show_edit=False, extraclass=None):
     except L10nSettings.DoesNotExist:
         motd = None
 
-    ctx = {
+    ctx = dict(context.items())
+    ctx.update({
         'show_edit': show_edit,
         'motd_lang': lang,
         'motd': motd,
         'extraclass': extraclass
-    }
-
-    t = env.get_template('localizers/sidebar_motd.html')
-    return jinja2.Markup(t.render(**ctx))
+    })
+    return ctx
 
 
-@register.function
+@register.inclusion_tag('localizers/locale_switcher.html')
 def locale_switcher(current_locale=None):
     """Locale dropdown to switch user locale on localizer pages."""
-    ctx = {
+    return {
         'current_locale': current_locale,
         'locales': settings.AMO_LANGUAGES + settings.HIDDEN_LANGUAGES,
         'languages': product_details.languages,
     }
-    t = env.get_template('localizers/locale_switcher.html')
-    return jinja2.Markup(t.render(**ctx))

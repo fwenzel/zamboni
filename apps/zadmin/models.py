@@ -13,4 +13,7 @@ class Config(models.Model):
 
     @property
     def json(self):
-        return json.loads(self.value)
+        try:
+            return json.loads(self.value)
+        except ValueError:
+            return {}

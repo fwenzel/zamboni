@@ -9,6 +9,7 @@ detail_patterns = patterns('',
     url('^categories/$', views.categories, name='localizers.categories'),
     url('^collection_features/$', views.collection_features,
         name='localizers.collection_features'),
+    url('^xenophobia/$', views.xenophobia, name='localizers.xenophobia'),
 )
 
 urlpatterns = patterns('',

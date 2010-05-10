@@ -4,15 +4,17 @@ from django import http
 from django.conf import settings
 from django.db.models import Min
 from django.utils import translation
+from django.views.decorators.http import require_POST
 
 import jingo
-from l10n import ugettext as _
+from tower import ugettext as _
 import product_details
 
 from access import acl
 from access.models import Group
 import amo.utils
 from amo.urlresolvers import reverse
+from zadmin.models import Config
 
 from . import L10N_CATEGORIES
 from .models import L10nEventlog, L10nSettings
@@ -62,6 +64,7 @@ def summary(request):
     return jingo.render(request, 'localizers/summary.html', data)
 
 
+@require_POST
 def set_motd(request):
     """AJAX: Set announcements for either global or per-locale dashboards."""
     lang = request.POST.get('lang', None)
@@ -124,12 +127,20 @@ def locale_switcher(f):
     return decorated
 
 
+def valid_locale(f):
+    """Decorator validating locale code for per-language pages."""
+    def decorated(request, locale_code, *args, **kwargs):
+        if locale_code not in (settings.AMO_LANGUAGES +
+                               settings.HIDDEN_LANGUAGES):
+            raise http.Http404
+        return f(request, locale_code, *args, **kwargs)
+    return decorated
+
+
 @locale_switcher
+@valid_locale
 def locale_dashboard(request, locale_code):
     """per-locale dashboard"""
-    if locale_code not in (settings.AMO_LANGUAGES + settings.HIDDEN_LANGUAGES):
-        raise http.Http404
-
     data = {
         'locale_code': locale_code,
         'userlang': product_details.languages[locale_code],
@@ -161,16 +172,41 @@ def locale_dashboard(request, locale_code):
     return jingo.render(request, 'localizers/dashboard.html', data)
 
 
+@valid_locale
 def gettext(request, locale_code):
     return http.HttpResponse(
         'this is the gettext dashboard for %s' % locale_code)
 
 
+@valid_locale
 def categories(request, locale_code):
     return http.HttpResponse(
         'this is the categories dashboard for %s' % locale_code)
 
 
+@valid_locale
 def collection_features(request, locale_code):
     return http.HttpResponse(
         'this is the collection feat. dashboard for %s' % locale_code)
+
+
+@require_POST
+@valid_locale
+def xenophobia(request, locale_code):
+    if not acl.action_allowed(request, 'Admin', 'EditAnyLocale'):
+        return http.HttpResponseForbidden()
+
+    try:
+        conf = Config.objects.get(pk='xenophobia')
+    except Config.DoesNotExist:
+        conf = Config.objects.create(key='xenophobia', value='')
+
+    new_xeno = conf.json or {}
+    new_xeno[locale_code] = 'xenophobia' in request.POST
+
+    conf.value = json.dumps(new_xeno)
+    conf.save()
+
+    # TODO use a 303 redirect here eventually (Django ticket #13277)
+    return http.HttpResponseRedirect(reverse(
+        'localizers.locale_dashboard', kwargs={'locale_code': locale_code}))

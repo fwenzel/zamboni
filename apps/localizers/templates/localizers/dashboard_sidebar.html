@@ -47,11 +47,10 @@
 {% endif %}
 
 {% if show_global_edit %}
-{# TODO uncakeify #}
 <div class="article">
   <form method="post" action="{{
-    remora_url('/localizers/xenophobia', app='') }}">
-    {{ cake_csrf_token() }}
+    url('localizers.xenophobia', locale_code=locale_code) }}">
+    {{ csrf() }}
     <input name="locale" type="hidden" value="{{ locale_code }}"/>
     <input id="xenophobia" type="checkbox" name="xenophobia"{{
       ' checked' if xenophobia }}/>
