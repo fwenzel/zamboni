@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ css('developers') }}
+{% endblock %}
+
+{% block js %}
+  {{ js('developers') }}
+{% endblock %}
+
+{% block title %}
+{# L10n: %s is a locale name or code ('German' or 'de') #}
+{{ page_title(_('Gettext Information for {0}')|f(userlang['native'])) }}
+{% endblock %}
+
+{% block bodyclass %}inverse l10n-gettext{% endblock %}
+
+{% block main_content %}
+{{ locale_switcher(current_locale=locale_code) }}
+
+<h2>{{ _('Gettext Information for {0}')|f(userlang.native) }}</h2>
+
+<div id="localizers" class="primary feed-page" role="main">
+  {{ breadcrumbs([
+  (url('localizers.dashboard'), _('Localization Dashboard')),
+  (url('localizers.locale_dashboard', locale_code=locale_code), userlang.native),
+  ]) }}
+
+  <p>{{ viewvc_link(default_locale) }} | {{ viewvc_link(locale_code) }}</p>
+
+  <p><strong>
+  {% trans locale=locale_code, translated=translated_count, total=total,
+           percentage=translated_percent|numberfmt('0.#') %}
+  Translated Strings for {{ locale}}: {{ translated }} / {{ total }} ({{ percentage }}%)
+  {% endtrans %}
+  </strong></p>
+
+  {% if untranslated %}
+  <p>
+  {% trans untranslated_count=total-translated_count %}
+  The following {{ untranslated_count }} strings are untranslated:
+  {% endtrans %}
+  </p>
+
+  <div class="prose">
+    <ul>
+    {% for u in untranslated %}
+      <li>{{ u }}</li>
+    {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+</div>{# /#localizers #}
+
+{% endblock %}
+
+{% macro viewvc_link(locale) -%}
+<a href="http://viewvc.svn.mozilla.org/vc/addons/trunk/site/app/locale/{{ locale }}/LC_MESSAGES/z-messages.po?view=markup">{{
+  _('Gettext .po file for {0}')|f(locale)
+}}</a>
+{%- endmacro %}

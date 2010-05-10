@@ -1,4 +1,6 @@
 import json
+import os.path
+import re
 
 from django import http
 from django.conf import settings
@@ -117,7 +119,7 @@ def locale_switcher(f):
     """Decorator redirecting clicks on the locale switcher dropdown."""
     def decorated(request, *args, **kwargs):
         new_userlang = request.GET.get('userlang')
-        if (new_userlang and new_userlang in settings.LANGUAGES or
+        if (new_userlang and new_userlang in settings.AMO_LANGUAGES or
             new_userlang in settings.HIDDEN_LANGUAGES):
             kwargs['locale_code'] = new_userlang
             return http.HttpResponsePermanentRedirect(reverse(
@@ -172,18 +174,75 @@ def locale_dashboard(request, locale_code):
     return jingo.render(request, 'localizers/dashboard.html', data)
 
 
+def _build_gettext_string_dict(locale_code):
+    """Build a string dictionary from a .po file."""
+    locale_code = locale_code.replace('-', '_')
+    po_path = lambda lang: os.path.join(
+        settings.ROOT, 'locale', lang, 'LC_MESSAGES',
+        '%s.po' % settings.TEXT_DOMAIN)
+    with open(po_path(locale_code)) as f:
+        locale_raw = f.read()
+
+    # Remove header.
+    try:
+        post_header_idx = locale_raw.index("\n\n")
+        locale_raw = locale_raw[post_header_idx:]
+    except ValueError:
+        pass
+
+    locale_regex = re.compile(
+        r'msgid\s+"(.+?)"\s*(?:msgid_plural\s+"(?:.+?)"\s*)?'
+        '(?:msgstr(?:\[\d+\])? "(.+?)"\s*)+(?:#|msg)',
+        re.IGNORECASE | re.DOTALL)
+
+    locale_matches = locale_regex.findall(locale_raw)
+    locale_strings = dict(locale_matches)
+
+    return locale_strings
+
+
+@locale_switcher
 @valid_locale
 def gettext(request, locale_code):
-    return http.HttpResponse(
-        'this is the gettext dashboard for %s' % locale_code)
+    """Overview of untranslated Gettext strings."""
+    default_locale = settings.LANGUAGE_CODE
+    data = {
+        'default_locale': default_locale,
+        'locale_code': locale_code,
+        'userlang': product_details.languages[locale_code],
+    }
+
+    # Read en-US and localized .po file
+    locale_strings = _build_gettext_string_dict(locale_code)
+    default_strings = _build_gettext_string_dict(default_locale)
+
+    # Compare
+    untranslated = [ s for s in default_strings if
+                     s not in locale_strings or not locale_strings[s] ]
+    untranslated.sort()
+    data['untranslated'] = untranslated
+
+    # Stats
+    total = len(default_strings)
+    translated_count = total - len(untranslated)
+    translated_percent = float(translated_count) / float(total) * 100
+    data.update({
+        'total': total,
+        'translated_count': translated_count,
+        'translated_percent': translated_percent,
+    })
+
+    return jingo.render(request, 'localizers/gettext.html', data)
 
 
+@locale_switcher
 @valid_locale
 def categories(request, locale_code):
     return http.HttpResponse(
         'this is the categories dashboard for %s' % locale_code)
 
 
+@locale_switcher
 @valid_locale
 def collection_features(request, locale_code):
     return http.HttpResponse(
